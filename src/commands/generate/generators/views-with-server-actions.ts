@@ -1378,7 +1378,7 @@ const createSubPage = (schema: ExtendedSchema, isChild: boolean) => {
   const config = readConfigFile();
 
   const children =
-    schema.children.length > 0
+    schema.children?.length > 0
       ? schema.children.map((c) => formatTableName(c.tableName))
       : [];
 
