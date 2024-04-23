@@ -535,3 +535,34 @@ export async function buildSchema() {
     addPackage();
   }
 }
+
+export async function buildSchemaFromFile(schemaFile: string) {
+  const ready = preBuild();
+  if (!ready) return;
+
+  const config = readConfigFile();
+
+  if (config.orm === null) {
+    consola.warn(
+      "You need to have an ORM installed in order to use the scaffold command."
+    );
+    addPackage();
+    return;
+  }
+
+  const resourceType = await askForResourceType();
+
+  const schema = (await import(schemaFile)).default as unknown as Schema;
+
+  const schemas = formatSchemaForGeneration(schema);
+
+  await sendEvent("generate", {
+    schemas: JSON.stringify(anonymiseSchemas(schemas)),
+    resources: resourceType,
+  });
+
+  for (let schema of schemas) {
+    await generateResources(schema, resourceType);
+  }
+  printGenerateNextSteps(schema, resourceType);
+}
